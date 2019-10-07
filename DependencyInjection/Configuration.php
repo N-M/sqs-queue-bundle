@@ -2,6 +2,7 @@
 
 namespace TriTran\SqsQueueBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -22,15 +23,20 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $tree = new TreeBuilder();
-        $rootNode = $tree->root('tritran_sqs_queue');
+        $treeBuilder = new TreeBuilder('tritran_sqs_queue');
+        // Keep compatibility with symfony/config < 4.2;
+        if (!method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->root('tritran_sqs_queue');
+        } else {
+            $rootNode = $treeBuilder->getRootNode();
+        }
 
         $rootNode
             ->children()
                 ->append($this->getSQSQueueNodeDef())
             ->end();
 
-        return $tree;
+        return $treeBuilder;
     }
 
     /**
@@ -65,6 +71,7 @@ class Configuration implements ConfigurationInterface
                 ->append((new IntegerNodeDefinition('message_retention_period'))->defaultValue(345600)->min(60)->max(1209600))// 4 days
                 ->append((new IntegerNodeDefinition('receive_message_wait_time_seconds'))->defaultValue(20)->min(0)->max(20))// seconds
                 ->append((new IntegerNodeDefinition('visibility_timeout'))->defaultValue(30)->min(0)->max(43200))// second
+                ->append((new BooleanNodeDefinition('content_based_deduplication'))->defaultValue(false))// second
                 ->append($this->getSQSRedrivePolicyNode())
             ->end();
     }

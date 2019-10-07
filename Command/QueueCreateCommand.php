@@ -47,7 +47,7 @@ class QueueCreateCommand extends ContainerAwareCommand
                 null,
                 InputOption::VALUE_REQUIRED,
                 'MessageRetentionPeriod',
-                60
+                345600
             )
             ->addOption(
                 'receive_message_wait_time_seconds',
@@ -62,6 +62,12 @@ class QueueCreateCommand extends ContainerAwareCommand
                 InputOption::VALUE_REQUIRED,
                 'VisibilityTimeout',
                 30
+            )
+            ->addOption(
+                'content_based_deduplication',
+                null,
+                InputOption::VALUE_NONE,
+                'ContentBasedDeduplication'
             )
             ->setDescription('Create a queue by name and basic attributions');
     }
@@ -86,7 +92,8 @@ class QueueCreateCommand extends ContainerAwareCommand
             'MaximumMessageSize' => $input->getOption('maximum_message_size'),
             'MessageRetentionPeriod' => $input->getOption('message_retention_period'),
             'ReceiveMessageWaitTimeSeconds' => $input->getOption('receive_message_wait_time_seconds'),
-            'VisibilityTimeout' => $input->getOption('visibility_timeout')
+            'VisibilityTimeout' => $input->getOption('visibility_timeout'),
+            'ContentBasedDeduplication' => $input->getOption('content_based_deduplication')
         ]);
 
         $io->text(sprintf('Created successfully. New Queue URL: <comment>%s</comment>', $queueUrl));

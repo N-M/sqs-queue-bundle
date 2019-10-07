@@ -45,6 +45,8 @@ class AppKernel extends Kernel
 }
 ```
 
+> In a default Symfony application that uses [Symfony Flex](https://symfony.com/doc/current/setup/flex.html), bundles are enabled/disabled automatically for you when installing/removing them, so you could ignore this step.
+
 ### Step 3: Update AWS SQS Credential
 
 This bundle is using [AWS SDK for PHP](https://github.com/aws/aws-sdk-php-symfony). Full documentation of the configuration options available can be read in the [SDK Guide](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/configuration.html).
@@ -119,6 +121,10 @@ class DefaultController extends Controller
     }
 }
 ```
+
+> For a FIFO queue, you must associate a non-empty `MessageGroupId` with a message. Otherwise, the action fails.<br/>
+> You may provide a `MessageDeduplicationId` explicitly. If you aren't able to provide a `MessageDeduplicationId` and you enable `ContentBasedDeduplication` for your queue, Amazon SQS uses a SHA-256 hash to generate the `MessageDeduplicationId` using the body of the message (but not the attributes of the message).<br />
+> For more information about FIFO queue, please take a look at [Amazon SQS FIFO (First-In-First-Out) Queues](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html)
 
 #### Queue Behaviours
 

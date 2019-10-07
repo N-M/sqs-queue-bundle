@@ -190,12 +190,39 @@ class SQSQueuePassTest extends TestCase
                     ]
                 ]
             ],
-            // Case #3: Load multi queues at the same time
+            // Case #3: Load a FIFO queue
+            [
+                $container,
+                [
+                    'queue.fifo' => [
+                        'queue_url' => 'fifo-queue-url',
+                        'worker' => $basicWorker,
+                        'attributes' => []
+                    ]
+                ],
+                [
+                    'queue.fifo' => [
+                        'fifo-queue-url',
+                        new Definition($basicWorker),
+                        [
+                            'DelaySeconds' => 0,
+                            'MaximumMessageSize' => 262144,
+                            'MessageRetentionPeriod' => 345600,
+                            'ReceiveMessageWaitTimeSeconds' => 20,
+                            'VisibilityTimeout' => 30,
+                            'RedrivePolicy' => '',
+                            'ContentBasedDeduplication' => true
+                        ]
+                    ]
+                ]
+            ],
+            // Case #4: Load multi queues at the same time
             [
                 $container,
                 [
                     'basic-queue-1' => ['queue_url' => 'basic-url-1', 'worker' => $basicWorker],
-                    'basic-queue-2' => ['queue_url' => 'basic-url-2', 'worker' => $basicWorkerAsService]
+                    'basic-queue-2' => ['queue_url' => 'basic-url-2', 'worker' => $basicWorkerAsService],
+                    'queue.fifo' => ['queue_url' => 'fifo-queue-url', 'worker' => $basicWorkerAsService]
                 ],
                 [
                     'basic-queue-1' => [
@@ -221,9 +248,23 @@ class SQSQueuePassTest extends TestCase
                             'VisibilityTimeout' => 30,
                             'RedrivePolicy' => ''
                         ]
+                    ],
+                    'queue.fifo' => [
+                        'fifo-queue-url',
+                        new Reference($basicWorkerAsService),
+                        [
+                            'DelaySeconds' => 0,
+                            'MaximumMessageSize' => 262144,
+                            'MessageRetentionPeriod' => 345600,
+                            'ReceiveMessageWaitTimeSeconds' => 20,
+                            'VisibilityTimeout' => 30,
+                            'RedrivePolicy' => '',
+                            'ContentBasedDeduplication' => true
+                        ]
                     ]
                 ]
-            ]
+            ],
+
         ];
     }
 

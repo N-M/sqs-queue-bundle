@@ -2,9 +2,10 @@
 
 namespace TriTran\SqsQueueBundle\Tests\app;
 
+use AppKernel;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase as SymfonyKernelTestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,7 +18,7 @@ class KernelTestCase extends SymfonyKernelTestCase
     /**
      * @var ContainerInterface
      */
-    private $container;
+    private $cont;
 
     /**
      * Sets the container.
@@ -26,7 +27,7 @@ class KernelTestCase extends SymfonyKernelTestCase
      */
     public function setContainer(ContainerInterface $container = null)
     {
-        $this->container = $container;
+        $this->cont = $container;
     }
 
     /**
@@ -39,12 +40,23 @@ class KernelTestCase extends SymfonyKernelTestCase
      */
     protected function getContainer($reinitialize = false, array $kernelOptions = [])
     {
-        if ($this->container === null || $reinitialize) {
+        if ($this->cont === null || $reinitialize) {
             static::bootKernel($kernelOptions);
-            $this->container = static::$kernel->getContainer();
+            $this->cont = static::$kernel->getContainer();
         }
 
-        return $this->container;
+        return $this->cont;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function createKernel(array $options = [])
+    {
+        $kernel = new AppKernel('test', true);
+        $kernel->boot();
+
+        return $kernel;
     }
 
     /**
@@ -54,10 +66,7 @@ class KernelTestCase extends SymfonyKernelTestCase
      */
     public function createCommandTester(ContainerAwareCommand $command)
     {
-        $kernel = static::createKernel();
-        $kernel->boot();
-
-        $application = new Application($kernel);
+        $application = new Application();
         $command->setContainer($this->getContainer());
         $application->add($command);
 
